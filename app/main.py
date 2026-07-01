@@ -1,14 +1,11 @@
 from fastapi import FastAPI
+from app.usda_client import search_food
 
 app = FastAPI()
 
-@app.get("/")
-def home():
-    return {"message": "CalX AI is running"}
+API_KEY = "cEmlpRnULNQBraiZEF1WTpKZjKDdZwsAqGwG8jtx"
 
 @app.get("/nutrition")
-def get_nutrition(food: str):
-    return {
-        "food": food,
-        "calories": "coming soon"
-    }
+def nutrition(food: str):
+    data = search_food(food, API_KEY)
+    return data
