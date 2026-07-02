@@ -1,5 +1,6 @@
 from fastapi import FastAPI, UploadFile, File
 from app.usda_client import search_food
+from app.service import detect_food
 import os
 from dotenv import load_dotenv
 
@@ -22,6 +23,12 @@ def nutrition(food: str):
 # New image upload endpoint
 @app.post("/upload-image")
 async def upload_image(file: UploadFile = File(...)):
-    return {
-        "filename": file.filename
-    }
+
+    detected_food = detect_food(file.filename)
+
+    data = search_food(
+        detected_food,
+        API_KEY
+    )
+
+    return data
