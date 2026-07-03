@@ -28,10 +28,14 @@ async def upload_image(file: UploadFile = File(...)):
     if not file.content_type or not file.content_type.startswith("image/"):
         return {"error": "Only image files allowed"}
 
-    image = await file.read()
+    try:
+        image = await file.read()
 
-    food_name = detect_food(image)
+        food_name = detect_food(image)
 
-    nutrition_data = search_food(food_name, API_KEY)
+        nutrition_data = search_food(food_name, API_KEY)
 
-    return nutrition_data
+        return nutrition_data
+
+    except Exception:
+        return {"error": "Image processing failed"}
