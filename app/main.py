@@ -33,6 +33,9 @@ async def upload_image(file: UploadFile = File(...)):
 
         food_name = detect_food(image)
 
+        if not food_name:
+            return {"error": "Food not detected"}    
+
         nutrition_data = search_food(food_name, API_KEY)
 
         return nutrition_data
