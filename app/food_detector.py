@@ -6,7 +6,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 client = genai.Client(
-    api_key=os.getenv("GEMINI_API_KEY")
+    api_key=os.getenv("GEMINI_API_KEY"),
+    http_options={"timeout": 10}
 )
 
 def detect_food(image_bytes):
@@ -22,4 +23,4 @@ def detect_food(image_bytes):
         ]
     )
 
-    return response.text.strip() if response.text else "unknown"
+    return response.text.strip() if response.text else ""
