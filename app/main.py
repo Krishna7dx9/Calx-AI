@@ -2,7 +2,7 @@ from fastapi import FastAPI, UploadFile, File
 from app.usda_client import search_food
 import os
 from dotenv import load_dotenv
-from app.image_detector import detect_food
+from app.food_detector import detect_food
 
 # Load variables from .env file
 load_dotenv()
@@ -23,6 +23,10 @@ def nutrition(food: str):
 # image upload endpoint
 @app.post("/upload-image")
 async def upload_image(file: UploadFile = File(...)):
+
+    # Check whether uploaded file is image
+    if not file.content_type or not file.content_type.startswith("image/"):
+        return {"error": "Only image files allowed"}
 
     image = await file.read()
 
