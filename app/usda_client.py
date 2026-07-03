@@ -10,7 +10,8 @@ def search_food(food_name, api_key):
             "query": food_name,
             "api_key": api_key,
             "pageSize": 1
-        }
+        },
+        timeout=10
     )
 
     data = response.json()
