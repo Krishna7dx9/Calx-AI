@@ -1,8 +1,8 @@
 from fastapi import FastAPI, UploadFile, File
 from app.usda_client import search_food
-from app.service import detect_food
 import os
 from dotenv import load_dotenv
+from app.image_detector import detect_food
 
 # Load variables from .env file
 load_dotenv()
@@ -13,22 +13,21 @@ app = FastAPI()
 API_KEY = os.getenv("USDA_API_KEY")
 
 
-# Existing nutrition endpoint
+# nutrition endpoint
 @app.get("/nutrition")
 def nutrition(food: str):
     data = search_food(food, API_KEY)
     return data
 
 
-# New image upload endpoint
+# image upload endpoint
 @app.post("/upload-image")
 async def upload_image(file: UploadFile = File(...)):
 
-    detected_food = detect_food(file.filename)
+    image = await file.read()
 
-    data = search_food(
-        detected_food,
-        API_KEY
-    )
+    food_name = detect_food(image)
 
-    return data
+    nutrition_data = search_food(food_name, API_KEY)
+
+    return nutrition_data
