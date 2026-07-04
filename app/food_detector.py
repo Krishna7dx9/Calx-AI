@@ -1,26 +1,45 @@
-from google import genai
-from google.genai import types
+from openai import OpenAI
+import base64
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
-client = genai.Client(
-    api_key=os.getenv("GEMINI_API_KEY"),
-    http_options={"timeout": 10}
+client = OpenAI(
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    base_url="https://openrouter.ai/api/v1"
 )
+
 
 def detect_food(image_bytes):
 
-    response = client.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=[
-            "Tell only the food name from this image. Return one word only.",
-            types.Part.from_bytes(
-                data=image_bytes,
-                mime_type="image/jpeg"
-            )
+    image_base64 = base64.b64encode(
+        image_bytes
+    ).decode("utf-8")
+
+    response = client.chat.completions.create(
+        model="google/gemma-3-27b-it",
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text":
+                        "Identify all food items in this image. Return only comma-separated food names."
+                    },
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url":
+                            f"data:image/jpeg;base64,{image_base64}"
+                        }
+                    }
+                ]
+            }
         ]
     )
 
-    return response.text.strip() if response.text else ""
+    content = response.choices[0].message.content
+
+    return content.strip() if content else ""

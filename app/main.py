@@ -1,44 +1,43 @@
 from fastapi import FastAPI, UploadFile, File
 from app.usda_client import search_food
+from app.food_detector import detect_food
 import os
 from dotenv import load_dotenv
-from app.food_detector import detect_food
 
-# Load variables from .env file
 load_dotenv()
 
 app = FastAPI()
 
-# Read USDA API key from environment
 API_KEY = os.getenv("USDA_API_KEY")
 
 
-# nutrition endpoint
 @app.get("/nutrition")
 def nutrition(food: str):
-    data = search_food(food, API_KEY)
-    return data
+    return search_food(food, API_KEY)
 
 
-# image upload endpoint
 @app.post("/upload-image")
 async def upload_image(file: UploadFile = File(...)):
 
-    # Check whether uploaded file is image
+    # Validate uploaded file
     if not file.content_type or not file.content_type.startswith("image/"):
         return {"error": "Only image files allowed"}
 
     try:
         image = await file.read()
 
-        food_name = detect_food(image)
+        detected_foods = detect_food(image)
 
-        if not food_name:
-            return {"error": "Food not detected"}    
+        if not detected_foods:
+            return {"error": "Food not detected"}
 
-        nutrition_data = search_food(food_name, API_KEY)
+        # temporary for V3 step-by-step
+        return {
+            "detected_foods": detected_foods
+        }
 
-        return nutrition_data
-
-    except Exception:
-        return {"error": "Image processing failed"}
+    except Exception as exc:
+        return {
+            "error": "Image processing failed",
+            "details": str(exc)
+        }

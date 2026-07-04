@@ -4,6 +4,7 @@ BASE_URL = "https://api.nal.usda.gov/fdc/v1/foods/search"
 
 
 def search_food(food_name, api_key):
+
     response = requests.get(
         BASE_URL,
         params={
@@ -24,6 +25,7 @@ def search_food(food_name, api_key):
     nutrients = {}
 
     for item in food.get("foodNutrients", []):
+
         name = item.get("nutrientName")
         value = item.get("value", 0)
 
