@@ -37,8 +37,18 @@ async def upload_image(file: UploadFile = File(...)):
             if food.strip()
         ]
 
+        nutrition_results = []
+
+        for food in food_list:
+            nutrition_data = search_food(food, API_KEY)
+
+            if "error" not in nutrition_data:
+                nutrition_results.append(nutrition_data)
+
         return {
-            "foods": food_list
+            "foods": nutrition_results,
+            "total_detected": len(food_list),
+            "total_found": len(nutrition_results)
         }
 
     except Exception as exc:
