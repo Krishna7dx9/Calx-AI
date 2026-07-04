@@ -6,7 +6,7 @@ AI-powered nutrition tracking and calorie estimation system built using an itera
 
 ## Current Status
 
-**Current Version:** V2 (MVP)
+**Current Version:** V3.1 (MVP)
 
 ### Completed Features
 
@@ -22,7 +22,7 @@ AI-powered nutrition tracking and calorie estimation system built using an itera
 #### V2 — AI Food Recognition
 
 * Upload food images
-* AI-based food detection using Gemini Vision
+* AI-based food detection using OpenRouter Vision
 * Reuse nutrition lookup engine
 * Image validation
 * External API exception handling
@@ -30,6 +30,15 @@ AI-powered nutrition tracking and calorie estimation system built using an itera
 * Clean reusable service architecture
 
 ---
+
+#### V3.1 — Multi-Food Nutrition Aggregation
+
+* Detect multiple foods from a single image
+* Aggregate nutrition data
+* Total calorie calculation
+* Partial failure handling
+* Regression tests
+* Package configuration for testing
 
 ## Supported Nutrition Data
 
@@ -63,17 +72,21 @@ Processed Nutrition Response
 ### Image Recognition Flow
 
 ```text
+### Image Recognition Flow
+
 User Uploads Food Image
             ↓
 FastAPI Backend
             ↓
-Gemini Vision API
+OpenRouter Vision Model
             ↓
-Detected Food Name
+Multiple Food Detection
             ↓
 USDA FoodData API
             ↓
-Processed Nutrition Response
+Nutrition Aggregation
+            ↓
+Total Nutrition Response
 ```
 
 ---
@@ -87,11 +100,16 @@ Calx-AI
 │   ├── main.py
 │   ├── usda_client.py
 │   ├── food_detector.py
+│   ├── __init__.py
+│
+├── tests
+│   ├── test_main.py
+│   ├── test_food_detector.py
 │
 ├── .env
 ├── requirements.txt
+├── pytest.ini
 ├── README.md
-├── .gitignore
 ```
 
 ---
@@ -107,7 +125,10 @@ Calx-AI
 
 ### AI
 
-* Gemini Vision API
+### AI
+
+* OpenRouter Vision Model
+* Gemma Vision model
 
 ### Nutrition Source
 
@@ -187,6 +208,10 @@ Current design decisions:
 * Error handling
 * Reusable nutrition lookup flow
 * Incremental feature development
+* Regression testing
+* Partial failure handling
+* Low coupling design
+* Replaceable AI and nutrition provider layers
 
 ---
 
@@ -196,23 +221,67 @@ Current design decisions:
 
 ### V2 — AI food recognition ✓
 
-### V3 — Portion estimation
+### V3.1 — Multi-food nutrition aggregation ✓
+
+### V3.2 — Food description normalization
 
 Planned:
 
-* Multi-food detection
-* Portion estimation
-* Convert estimated quantity to grams
-* Calculate total nutrition values
+* Clean AI-generated food labels
+* Match USDA search format
+* Improve search accuracy
+* Add search scoring/re-ranking
 
-### V4 — Adaptive calorie estimation
+---
+
+### V3.3 — Serving estimation
 
 Planned:
 
-* Depth-enabled estimation
-* Device capability detection
-* Personalized nutrition tracking
-* Food history and analytics
+* Detect serving counts
+* Estimate food quantity
+* Improve nutrition calculation
+
+
+### V3.4 — Weight estimation
+
+Planned:
+
+* Convert servings to approximate grams
+* Use food metadata
+* Improve calorie accuracy
+
+---
+
+### V4 — Adaptive calorie engine
+
+Planned:
+
+* Personalized calorie tracking
+* Food history
+* Analytics
+* Device capability support
+
+---
+
+### V5 — Barcode support
+
+Planned:
+
+* Barcode scanning
+* OpenFoodFacts integration
+* Packaged food support
+
+---
+
+### V6 — Mobile application
+
+Planned:
+
+* Flutter UI
+* Authentication
+* Cloud deployment
+* Play Store release
 
 ---
 
