@@ -38,12 +38,16 @@ async def upload_image(file: UploadFile = File(...)):
         ]
 
         nutrition_results = []
+        failed_food_count = 0
 
         for food in food_list:
             nutrition_data = search_food(food, API_KEY)
 
-            if "error" not in nutrition_data:
-                nutrition_results.append(nutrition_data)
+            if "error" in nutrition_data:
+                failed_food_count += 1
+                continue
+
+            nutrition_results.append(nutrition_data)  
 
         total_calories = 0
         total_protein = 0
@@ -64,6 +68,7 @@ async def upload_image(file: UploadFile = File(...)):
             "foods": nutrition_results,
             "total_detected": len(food_list),
             "total_found": len(nutrition_results),
+            "total_failed": failed_food_count,
 
             "total_nutrition": {
                 "calories": round(total_calories, 2),
