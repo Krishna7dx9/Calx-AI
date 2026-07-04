@@ -31,9 +31,14 @@ async def upload_image(file: UploadFile = File(...)):
         if not detected_foods:
             return {"error": "Food not detected"}
 
-        # temporary for V3 step-by-step
+        food_list = [
+            food.strip()
+            for food in detected_foods.split(",")
+            if food.strip()
+        ]
+
         return {
-            "detected_foods": detected_foods
+            "foods": food_list
         }
 
     except Exception as exc:
