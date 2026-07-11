@@ -1,5 +1,5 @@
 from fastapi import FastAPI, UploadFile, File
-from app.usda_client import search_food
+from app.fatsecret_client import search_food
 from app.food_detector import detect_food
 import os
 from dotenv import load_dotenv
@@ -8,12 +8,9 @@ load_dotenv()
 
 app = FastAPI()
 
-API_KEY = os.getenv("USDA_API_KEY")
-
-
 @app.get("/nutrition")
 def nutrition(food: str):
-    return search_food(food, API_KEY)
+    return search_food(food)
 
 
 @app.post("/upload-image")
@@ -41,7 +38,7 @@ async def upload_image(file: UploadFile = File(...)):
         failed_food_count = 0
 
         for food in food_list:
-            nutrition_data = search_food(food, API_KEY)
+            nutrition_data = search_food(food)
 
             if "error" in nutrition_data:
                 failed_food_count += 1
