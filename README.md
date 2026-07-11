@@ -6,87 +6,133 @@ AI-powered nutrition tracking and calorie estimation system built using an itera
 
 ## Current Status
 
-**Current Version:** V3.1 (MVP)
+**Current Development Stage:** V3.2 (Active Development)
 
-### Completed Features
+### Implemented Features
 
-#### V1 — Nutrition Search
+#### V1 — Nutrition Lookup ✅
 
-* Search food using text input
-* USDA FoodData Central API integration
-* Extract nutrition information
-* Environment variable-based API security
-* Modular backend structure
-* Error handling for missing food data
-
-#### V2 — AI Food Recognition
-
-* Upload food images
-* AI-based food detection using OpenRouter Vision
-* Reuse nutrition lookup engine
-* Image validation
-* External API exception handling
-* Request timeout handling
-* Clean reusable service architecture
+- Search food using text input
+- FatSecret OAuth 2.0 authentication
+- FatSecret nutrition API integration
+- Detailed nutrition retrieval
+- Standardized internal nutrition response
+- Environment variable-based API security
+- OAuth token caching
+- Modular backend architecture
+- Error handling
+- Automated unit tests
 
 ---
 
-#### V3.1 — Multi-Food Nutrition Aggregation
+#### V2 — AI Food Recognition 🟡
 
-* Detect multiple foods from a single image
-* Aggregate nutrition data
-* Total calorie calculation
-* Partial failure handling
-* Regression tests
-* Package configuration for testing
+Implemented
+
+- Upload food images
+- AI-based food detection using OpenRouter Vision
+- Multiple food detection
+- Image validation
+- External API exception handling
+- Request timeout handling
+- Reusable service architecture
+
+Pending (after FatSecret migration)
+
+- AI → Nutrition integration
+- AI nutrition lookup pipeline
+
+---
+
+#### V3.1 — Multi-Food Nutrition Aggregation 🟡
+
+Implemented
+
+- Detect multiple foods from a single image
+- Partial failure handling
+- Regression tests
+- Package configuration for testing
+
+Pending
+
+- Aggregate nutrition data
+- Total calorie calculation using FatSecret nutrition data
+
 
 ## Supported Nutrition Data
 
 Current extracted nutrients:
 
-* Calories
-* Protein
-* Carbohydrates
-* Fat
-* Sugar
-* Fiber
+Reference Serving
+
+• Calories
+• Protein
+• Carbohydrates
+• Fat
+• Sugar
+• Fiber
+• Sodium
+
+Additional Serving Information
+
+• Serving description
+• Metric weight
+• Serving URL
+• Serving size
+• Potassium
+• Calcium
+• Iron
+• Vitamin A
+• Vitamin C
+• Cholesterol
+• Saturated fat
+• Monounsaturated fat
+• Polyunsaturated fat
 
 ---
 
 ## System Architecture
 
-### Text Search Flow
+### Text-Based Nutrition Search
 
 ```text
 User Input (Food Name)
-        ↓
+          ↓
 FastAPI Backend
-        ↓
-USDA Client Layer
-        ↓
-USDA FoodData API
-        ↓
-Processed Nutrition Response
+          ↓
+FatSecret Client
+          ↓
+FatSecret foods.search API
+          ↓
+Best Matching Food
+          ↓
+FatSecret food.get API
+          ↓
+Response Normalization
+          ↓
+Nutrition Response
 ```
 
-### Image Recognition Flow
+### AI Image Recognition
 
 ```text
-### Image Recognition Flow
-
 User Uploads Food Image
             ↓
 FastAPI Backend
             ↓
 OpenRouter Vision Model
             ↓
-Multiple Food Detection
+Detected Food Names
             ↓
-USDA FoodData API
+FatSecret Nutrition Engine
             ↓
-Nutrition Aggregation
+foods.search
             ↓
-Total Nutrition Response
+food.get
+            ↓
+Nutrition Normalization
+            ↓
+Aggregated Nutrition Response
 ```
 
 ---
@@ -97,19 +143,21 @@ Total Nutrition Response
 Calx-AI
 │
 ├── app
-│   ├── main.py
-│   ├── usda_client.py
-│   ├── food_detector.py
 │   ├── __init__.py
+│   ├── main.py
+│   ├── fatsecret_client.py
+│   ├── food_detector.py
 │
 ├── tests
-│   ├── test_main.py
+│   ├── test_fatsecret_client.py
 │   ├── test_food_detector.py
+│   ├── test_main.py
 │
 ├── .env
 ├── requirements.txt
 ├── pytest.ini
 ├── README.md
+├── system_architecture.png
 ```
 
 ---
@@ -118,80 +166,110 @@ Calx-AI
 
 ### Backend
 
-* Python
-* FastAPI
-* Requests
-* Python-dotenv
+- Python
+- FastAPI
+- Requests
+- python-dotenv
 
 ### AI
 
-### AI
+- OpenRouter API
+- Google Gemma 3 Vision
 
-* OpenRouter Vision Model
-* Gemma Vision model
+### Nutrition Data Source
 
-### Nutrition Source
+- FatSecret Platform API (OAuth 2.0)
 
-* USDA FoodData Central API
+### Development & Testing
 
-### Development Tools
+- Pytest
+- Git
+- GitHub
+- Swagger UI (OpenAPI)
 
-* Git
-* GitHub
-* Swagger UI
+### Planned Technologies
 
-### Planned Future Stack
-
-* Flutter (mobile app)
-* Advanced computer vision models
+- Flutter (Mobile Application)
+- Supabase
+- PostgreSQL
+- Advanced Computer Vision Models
+- Depth Estimation Models (MiDaS / ARCore / LiDAR)
 
 ---
 
 ## API Endpoints
 
-### Search nutrition using text
+### Search Nutrition by Food Name
 
-Request:
+**Request**
 
-```bash
+```http
 GET /nutrition?food=rice
 ```
 
-Response:
+**Example Response**
 
 ```json
 {
-    "food":"RICE",
-    "protein":3.47,
-    "fat":2.43,
-    "carbs":26.4,
-    "calories":139,
-    "sugar":1.39,
-    "fiber":1.4
+  "food_name": "White Rice",
+  "food_id": "4501",
+  "food_type": "Generic",
+  "food_url": "https://foods.fatsecret.com/calories-nutrition/generic/rice-white-cooked-regular",
+  "reference_serving": {
+    "description": "100 g",
+    "grams": 100,
+    "unit": "g",
+    "calories": 129,
+    "protein": 2.66,
+    "fat": 0.28,
+    "carbs": 27.90,
+    "fiber": 0.40,
+    "sugar": 0.05,
+    "sodium": 365
+  },
+  "servings": [
+    {
+      "serving_description": "100 g",
+      "metric_serving_amount": "100.000",
+      "metric_serving_unit": "g",
+      "calories": "129",
+      "protein": "2.66",
+      "fat": "0.28",
+      "carbohydrate": "27.90",
+      "fiber": "0.40",
+      "sugar": "0.05",
+      "sodium": "365"
+    }
+  ]
 }
 ```
 
 ---
 
-### Upload image for AI nutrition detection
+### AI Nutrition Detection from Image
 
-Request:
+**Request**
 
-```bash
+```http
 POST /upload-image
 ```
 
-Response:
+**Response**
 
 ```json
 {
-    "food":"RICE",
-    "protein":6.67,
-    "fat":0,
-    "carbs":77.8,
-    "calories":356,
-    "sugar":0,
-    "fiber":0
+  "detected_foods": [
+    "Rice",
+    "Chicken Breast"
+  ],
+  "total_nutrition": {
+    "calories": 521,
+    "protein": 34.8,
+    "fat": 8.1,
+    "carbs": 44.5,
+    "fiber": 0.4,
+    "sugar": 0.1
+  }
 }
 ```
 
@@ -217,71 +295,104 @@ Current design decisions:
 
 ## Future Roadmap
 
-### V1 — Text nutrition lookup ✓
-
-### V2 — AI food recognition ✓
-
-### V3.1 — Multi-food nutrition aggregation ✓
-
-### V3.2 — Food description normalization
+### V3.2 — AI → Nutrition Integration
 
 Planned:
 
-* Clean AI-generated food labels
-* Match USDA search format
-* Improve search accuracy
-* Add search scoring/re-ranking
+- Connect AI food detection with FatSecret nutrition lookup
+- Normalize AI-generated food names
+- Improve nutrition search accuracy
+- Add search scoring and result ranking
 
 ---
 
-### V3.3 — Serving estimation
+### V3.3 — Portion Estimation
 
 Planned:
 
-* Detect serving counts
-* Estimate food quantity
-* Improve nutrition calculation
-
-
-### V3.4 — Weight estimation
-
-Planned:
-
-* Convert servings to approximate grams
-* Use food metadata
-* Improve calorie accuracy
+- Detect serving counts
+- Estimate food quantity
+- Improve nutrition calculations
+- Handle multiple portions of the same food
 
 ---
 
-### V4 — Adaptive calorie engine
+### V3.4 — Weight Estimation
 
 Planned:
 
-* Personalized calorie tracking
-* Food history
-* Analytics
-* Device capability support
+- Convert estimated portions into approximate grams
+- Use food metadata for scaling
+- Improve calorie accuracy
+- Prepare backend for 3D volume estimation
 
 ---
 
-### V5 — Barcode support
+### V4 — Personalized Nutrition Engine
 
 Planned:
 
-* Barcode scanning
-* OpenFoodFacts integration
-* Packaged food support
+- User authentication
+- Personalized calorie goals
+- Meal history
+- Daily nutrition tracking
+- Progress analytics
+- Streaks and consistency tracking
+- Nutrition insights and recommendations
 
 ---
 
-### V6 — Mobile application
+### V5 — Advanced Computer Vision
 
 Planned:
 
-* Flutter UI
-* Authentication
-* Cloud deployment
-* Play Store release
+- Food segmentation
+- 3D volume estimation
+- Depth-based weight estimation
+- Adaptive calorie estimation
+- Improve portion accuracy
+
+---
+
+### V6 — Production Backend
+
+Planned:
+
+- Cloud deployment
+- Scalable backend architecture
+- Database optimization
+- Caching
+- Background jobs
+- Monitoring and logging
+- API rate limiting
+- Production security
+
+---
+
+### V7 — Mobile Application
+
+Planned:
+
+- Flutter application
+- Responsive UI
+- User profile management
+- Cloud synchronization
+- Subscription system
+- Offline support
+- Cross-platform optimization
+
+---
+
+### V8 — Food Ecosystem & Release
+
+Planned:
+
+- Barcode scanning
+- OpenFoodFacts integration
+- Packaged food support
+- Recipe nutrition support
+- Restaurant food support
+- Play Store publishing
 
 ---
 
