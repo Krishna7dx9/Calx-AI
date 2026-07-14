@@ -161,10 +161,9 @@ def normalize_food_response(food_data):
             "calories": float(reference["calories"]),
             "protein": float(reference["protein"]),
             "fat": float(reference["fat"]),
-            "calories": float(reference.get("calories", 0)),
-            "fiber": float(reference["fiber"]),
-            "sugar": float(reference["sugar"]),
-            "sodium": float(reference["sodium"])
+            "fiber": float(reference.get("fiber", 0)),
+            "sugar": float(reference.get("sugar", 0)),
+            "sodium": float(reference.get("sodium", 0)),
         },
 
         # Keep every serving returned by FatSecret.
