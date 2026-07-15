@@ -1,4 +1,4 @@
-# Calx-AI
+# ActualPlate
 
 AI-powered nutrition tracking and calorie estimation system built using an iterative engineering approach. The project evolves from text-based nutrition lookup into AI-driven food recognition and future adaptive calorie estimation.
 
@@ -6,7 +6,7 @@ AI-powered nutrition tracking and calorie estimation system built using an itera
 
 ## Current Status
 
-**Current Development Stage:** V3.2 (Active Development)
+**Current Development Stage:** V3.3 (Active Development)
 
 ### Implemented Features
 
@@ -16,7 +16,7 @@ AI-powered nutrition tracking and calorie estimation system built using an itera
 - FatSecret OAuth 2.0 authentication
 - FatSecret nutrition API integration
 - Detailed nutrition retrieval
-- Standardized internal nutrition response
+- Standardized internal nutrition response format
 - Environment variable-based API security
 - OAuth token caching
 - Modular backend architecture
@@ -25,69 +25,70 @@ AI-powered nutrition tracking and calorie estimation system built using an itera
 
 ---
 
-#### V2 — AI Food Recognition 🟡
+#### V2 — AI Food Recognition ✅
 
 Implemented
 
 - Upload food images
 - AI-based food detection using OpenRouter Vision
-- Multiple food detection
+- Multiple food detection from a single image
 - Image validation
 - External API exception handling
 - Request timeout handling
-- Reusable service architecture
-
-Pending (after FatSecret migration)
-
-- AI → Nutrition integration
-- AI nutrition lookup pipeline
+- Reusable AI service architecture
+- AI-to-nutrition pipeline integration
+- Automatic nutrition lookup for detected foods
 
 ---
 
-#### V3.1 — Multi-Food Nutrition Aggregation 🟡
+#### V3.1 — Multi-Food Nutrition Aggregation ✅
 
 Implemented
 
 - Detect multiple foods from a single image
-- Partial failure handling
+- Partial nutrition lookup failure handling
+- Nutrition response formatting
+- Separate nutrition aggregation module
+- Total calorie and nutrient calculation using FatSecret nutrition data
 - Regression tests
 - Package configuration for testing
 
-Pending
-
-- Aggregate nutrition data
-- Total calorie calculation using FatSecret nutrition data
+---
 
 
 ## Supported Nutrition Data
 
-Current extracted nutrients:
+The system currently extracts and processes nutrition information from FatSecret API responses.
 
-Reference Serving
+### Core Nutrition Data
 
-• Calories
-• Protein
-• Carbohydrates
-• Fat
-• Sugar
-• Fiber
-• Sodium
+Reference Serving:
 
-Additional Serving Information
+• Calories  
+• Protein  
+• Carbohydrates  
+• Fat  
+• Sugar  
+• Fiber  
+• Sodium  
 
-• Serving description
-• Metric weight
-• Serving URL
-• Serving size
-• Potassium
-• Calcium
-• Iron
-• Vitamin A
-• Vitamin C
-• Cholesterol
-• Saturated fat
-• Monounsaturated fat
-• Polyunsaturated fat
+### Additional Nutrition Metadata
+
+Available from nutrition providers:
+
+• Serving description  
+• Metric weight  
+• Serving size  
+• Serving URL  
+• Potassium  
+• Calcium  
+• Iron  
+• Vitamin A  
+• Vitamin C  
+• Cholesterol  
+• Saturated fat  
+• Monounsaturated fat  
+• Polyunsaturated fat  
 
 ---
 
@@ -104,16 +105,16 @@ FatSecret Client
           ↓
 FatSecret foods.search API
           ↓
-Best Matching Food
+Selected Food Result
           ↓
 FatSecret food.get API
           ↓
 Response Normalization
           ↓
-Nutrition Response
+Formatted Nutrition Response
 ```
 
-### AI Image Recognition
+### AI Food Recognition and Nutrition Pipeline
 
 ```text
 User Uploads Food Image
@@ -126,27 +127,51 @@ Detected Food Names
             ↓
 FatSecret Nutrition Engine
             ↓
-foods.search
+Food Search and Nutrition Retrieval
             ↓
-food.get
+Nutrition Formatter
             ↓
-Nutrition Normalization
+Nutrition Aggregator
             ↓
-Aggregated Nutrition Response
+Total Calories and Nutrient Breakdown
 ```
+
+### Future Computer Vision Pipeline
+
+```text
+Food Image
+      ↓
+OpenRouter Vision
+      ↓
+Detected Food Names
+      ↓
+Grounding DINO (Food Localization)
+      ↓
+SAM2 (Food Segmentation)
+      ↓
+Portion Estimation
+      ↓
+Weight Estimation
+      ↓
+Nutrition Calculation
+```
+
 
 ---
 
 ## Project Structure
 
 ```text
-Calx-AI
+ActualPlate
 │
 ├── app
 │   ├── __init__.py
 │   ├── main.py
 │   ├── fatsecret_client.py
 │   ├── food_detector.py
+│   ├── nutrition_formatter.py
+│   ├── nutrition_aggregator.py
+│   ├── portion_estimator.py
 │
 ├── tests
 │   ├── test_fatsecret_client.py
@@ -158,8 +183,6 @@ Calx-AI
 ├── pytest.ini
 ├── README.md
 ├── system_architecture.png
-```
-
 ---
 
 ## Tech Stack
@@ -173,8 +196,17 @@ Calx-AI
 
 ### AI
 
+Implemented:
+
 - OpenRouter API
 - Google Gemma 3 Vision
+
+Planned:
+
+- Grounding DINO (Food Localization)
+- SAM2 (Food Segmentation)
+- Depth Estimation Models (Depth Anything / MiDaS)
+- ARCore / LiDAR-based depth features
 
 ### Nutrition Data Source
 
@@ -187,13 +219,11 @@ Calx-AI
 - GitHub
 - Swagger UI (OpenAPI)
 
-### Planned Technologies
+### Planned Application Technologies
 
 - Flutter (Mobile Application)
 - Supabase
 - PostgreSQL
-- Advanced Computer Vision Models
-- Depth Estimation Models (MiDaS / ARCore / LiDAR)
 
 ---
 
@@ -213,12 +243,8 @@ GET /nutrition?food=rice
 {
   "food_name": "White Rice",
   "food_id": "4501",
-  "food_type": "Generic",
-  "food_url": "https://foods.fatsecret.com/calories-nutrition/generic/rice-white-cooked-regular",
-  "reference_serving": {
-    "description": "100 g",
-    "grams": 100,
-    "unit": "g",
+  "portion": null,
+  "nutrition": {
     "calories": 129,
     "protein": 2.66,
     "fat": 0.28,
@@ -226,21 +252,7 @@ GET /nutrition?food=rice
     "fiber": 0.40,
     "sugar": 0.05,
     "sodium": 365
-  },
-  "servings": [
-    {
-      "serving_description": "100 g",
-      "metric_serving_amount": "100.000",
-      "metric_serving_unit": "g",
-      "calories": "129",
-      "protein": "2.66",
-      "fat": "0.28",
-      "carbohydrate": "27.90",
-      "fiber": "0.40",
-      "sugar": "0.05",
-      "sodium": "365"
-    }
-  ]
+  }
 }
 ```
 
@@ -258,17 +270,37 @@ POST /upload-image
 
 ```json
 {
-  "detected_foods": [
-    "Rice",
-    "Chicken Breast"
+  "foods": [
+    {
+      "food_name": "Chicken Breast",
+      "food_id": "12345",
+      "portion": {
+        "food_name": "chicken breast",
+        "portion_ratio": 1.0,
+        "confidence": null,
+        "method": "placeholder"
+      },
+      "nutrition": {
+        "calories": 165,
+        "protein": 31,
+        "fat": 3.6,
+        "carbs": 0,
+        "fiber": 0,
+        "sugar": 0,
+        "sodium": 74
+      }
+    }
   ],
+  "total_detected": 1,
+  "total_found": 1,
+  "total_failed": 0,
   "total_nutrition": {
-    "calories": 521,
-    "protein": 34.8,
-    "fat": 8.1,
-    "carbs": 44.5,
-    "fiber": 0.4,
-    "sugar": 0.1
+    "calories": 165,
+    "protein": 31,
+    "fat": 3.6,
+    "carbs": 0,
+    "sugar": 0,
+    "fiber": 0
   }
 }
 ```
@@ -285,35 +317,35 @@ Current design decisions:
 * Input validation
 * Error handling
 * Reusable nutrition lookup flow
+* Separate AI detection and nutrition services
+* Nutrition response formatting layer
+* Independent nutrition aggregation module
 * Incremental feature development
 * Regression testing
 * Partial failure handling
 * Low coupling design
 * Replaceable AI and nutrition provider layers
+* Scalable architecture for future computer vision improvements
 
 ---
 
 ## Future Roadmap
 
-### V3.2 — AI → Nutrition Integration
+### V3.3 — Computer Vision Based Portion Estimation
+
+Current:
+
+- Basic placeholder portion module implemented
+- Uses default portion ratio (1.0)
+- No visual estimation performed yet
 
 Planned:
 
-- Connect AI food detection with FatSecret nutrition lookup
-- Normalize AI-generated food names
-- Improve nutrition search accuracy
-- Add search scoring and result ranking
-
----
-
-### V3.3 — Portion Estimation
-
-Planned:
-
-- Detect serving counts
-- Estimate food quantity
-- Improve nutrition calculations
-- Handle multiple portions of the same food
+- Food localization using Grounding DINO
+- Food segmentation using SAM2
+- Estimate food area from segmentation masks
+- Convert visual area into portion ratio
+- Improve nutrition calculation accuracy
 
 ---
 
@@ -321,14 +353,26 @@ Planned:
 
 Planned:
 
-- Convert estimated portions into approximate grams
-- Use food metadata for scaling
-- Improve calorie accuracy
-- Prepare backend for 3D volume estimation
+- Convert visual portions into approximate grams
+- Use food metadata and density information
+- Improve calorie estimation accuracy
+- Prepare pipeline for depth-based volume estimation
 
 ---
 
-### V4 — Personalized Nutrition Engine
+### V4 — Depth and 3D Food Understanding
+
+Planned:
+
+- Depth estimation models (Depth Anything / MiDaS)
+- Volume estimation from RGB images
+- Depth-assisted portion calculation
+- ARCore / LiDAR support for compatible devices
+- Improved weight estimation accuracy
+
+---
+
+### V5 — Personalized Nutrition Engine
 
 Planned:
 
@@ -339,18 +383,6 @@ Planned:
 - Progress analytics
 - Streaks and consistency tracking
 - Nutrition insights and recommendations
-
----
-
-### V5 — Advanced Computer Vision
-
-Planned:
-
-- Food segmentation
-- 3D volume estimation
-- Depth-based weight estimation
-- Adaptive calorie estimation
-- Improve portion accuracy
 
 ---
 
@@ -396,12 +428,46 @@ Planned:
 
 ---
 
+---
+
 ## Run Locally
+
+Clone the repository:
+
+```bash
+git clone https://github.com/Krishna7dx9/ActualPlate.git
+```
+
+Navigate to the project directory:
+
+```bash
+cd ActualPlate
+```
+
+Create and activate virtual environment:
+
+```bash
+python -m venv .venv
+```
+
+Windows:
+
+```bash
+.venv\Scripts\activate
+```
 
 Install dependencies:
 
 ```bash
 pip install -r requirements.txt
+```
+
+Create a `.env` file in the project root and add required API credentials:
+
+```env
+FATSECRET_CLIENT_ID=your_client_id
+FATSECRET_CLIENT_SECRET=your_client_secret
+OPENROUTER_API_KEY=your_api_key
 ```
 
 Start server:
@@ -412,7 +478,7 @@ uvicorn app.main:app --reload
 
 Open API documentation:
 
-```bash
+```text
 http://localhost:8000/docs
 ```
 
@@ -420,10 +486,11 @@ http://localhost:8000/docs
 
 ## Design Philosophy
 
-The system follows an iterative development strategy:
+The system follows an iterative engineering approach:
 
 * Start with a minimal working product
-* Build reusable components
-* Extend functionality without replacing architecture
-* Improve accuracy progressively
-* Design for scalability
+* Build modular and reusable components
+* Separate AI, nutrition, and processing layers
+* Extend functionality without replacing existing architecture
+* Improve accuracy progressively through better models
+* Design components for scalability and future production requirements
