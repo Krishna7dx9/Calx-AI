@@ -161,6 +161,7 @@ def normalize_food_response(food_data):
             "calories": float(reference["calories"]),
             "protein": float(reference["protein"]),
             "fat": float(reference["fat"]),
+            "carbohydrate": float(reference.get("carbohydrate", 0)),
             "fiber": float(reference.get("fiber", 0)),
             "sugar": float(reference.get("sugar", 0)),
             "sodium": float(reference.get("sodium", 0)),

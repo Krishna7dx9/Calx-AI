@@ -3,6 +3,9 @@ from app.fatsecret_client import search_food
 from app.food_detector import detect_food
 import os
 from dotenv import load_dotenv
+from app.portion_estimator import estimate_portions
+from app.nutrition_formatter import format_nutrition_response
+from app.nutrition_aggregator import aggregate_nutrition
 
 load_dotenv()
 
@@ -10,8 +13,12 @@ app = FastAPI()
 
 @app.get("/nutrition")
 def nutrition(food: str):
-    return search_food(food)
+    nutrition_data = search_food(food)
 
+    if "error" in nutrition_data:
+        return nutrition_data
+
+    return format_nutrition_response(nutrition_data)
 
 @app.post("/upload-image")
 async def upload_image(file: UploadFile = File(...)):
@@ -24,6 +31,7 @@ async def upload_image(file: UploadFile = File(...)):
         image = await file.read()
 
         detected_foods = detect_food(image)
+        portion_estimates = estimate_portions(image, detected_foods)
 
         if not detected_foods:
             return {"error": "Food not detected"}
@@ -37,29 +45,18 @@ async def upload_image(file: UploadFile = File(...)):
         nutrition_results = []
         failed_food_count = 0
 
-        for food in food_list:
+        for food, portion in zip(food_list, portion_estimates):
             nutrition_data = search_food(food)
 
             if "error" in nutrition_data:
                 failed_food_count += 1
                 continue
+                
+            nutrition_results.append(
+                format_nutrition_response(nutrition_data, portion)
+            )
 
-            nutrition_results.append(nutrition_data)  
-
-        total_calories = 0
-        total_protein = 0
-        total_fat = 0
-        total_carbs = 0
-        total_sugar = 0
-        total_fiber = 0
-
-        for food in nutrition_results:
-            total_calories += food.get("calories", 0)
-            total_protein += food.get("protein", 0)
-            total_fat += food.get("fat", 0)
-            total_carbs += food.get("carbs", 0)
-            total_sugar += food.get("sugar", 0)
-            total_fiber += food.get("fiber", 0)
+        total_nutrition = aggregate_nutrition(nutrition_results)
 
         return {
             "foods": nutrition_results,
@@ -67,14 +64,7 @@ async def upload_image(file: UploadFile = File(...)):
             "total_found": len(nutrition_results),
             "total_failed": failed_food_count,
 
-            "total_nutrition": {
-                "calories": round(total_calories, 2),
-                "protein": round(total_protein, 2),
-                "fat": round(total_fat, 2),
-                "carbs": round(total_carbs, 2),
-                "sugar": round(total_sugar, 2),
-                "fiber": round(total_fiber, 2)
-            }
+            "total_nutrition": total_nutrition
         }
 
     except Exception as exc:
