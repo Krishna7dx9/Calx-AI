@@ -1,13 +1,12 @@
 from fastapi.testclient import TestClient
 from unittest.mock import patch
-
-from app.main import app
+from backend.app.main import app
 
 client = TestClient(app)
 
 
 # Test single food detection
-@patch("app.main.detect_food")
+@patch("backend.app.main.detect_food")
 def test_single_food(mock_detect):
 
     mock_detect.return_value = "pizza"
@@ -21,7 +20,7 @@ def test_single_food(mock_detect):
 
 
 # Test multiple foods
-@patch("app.main.detect_food")
+@patch("backend.app.main.detect_food")
 def test_multiple_food(mock_detect):
 
     mock_detect.return_value = "pizza,burger,coke"
@@ -35,7 +34,7 @@ def test_multiple_food(mock_detect):
 
 
 # Test empty detection
-@patch("app.main.detect_food")
+@patch("backend.app.main.detect_food")
 def test_empty_food(mock_detect):
 
     mock_detect.return_value = ""

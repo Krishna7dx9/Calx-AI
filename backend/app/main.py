@@ -1,11 +1,12 @@
 from fastapi import FastAPI, UploadFile, File
-from app.fatsecret_client import search_food
-from app.food_detector import detect_food
+from nutrition.providers.fatsecret_client import search_food
+from vision_service.recognition.food_recognition import detect_food
+from vision_service.portion.portion_estimator import estimate_portions
+from nutrition.nutrition_formatter import format_nutrition_response
+from nutrition.nutrition_aggregator import aggregate_nutrition
+
 import os
 from dotenv import load_dotenv
-from app.portion_estimator import estimate_portions
-from app.nutrition_formatter import format_nutrition_response
-from app.nutrition_aggregator import aggregate_nutrition
 
 load_dotenv()
 
