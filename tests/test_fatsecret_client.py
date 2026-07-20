@@ -1,4 +1,4 @@
-from app.fatsecret_client import get_access_token, search_food
+from nutrition.providers.fatsecret_client import get_access_token, search_food
 
 def test_get_access_token():
     token = get_access_token()
@@ -16,4 +16,4 @@ def test_search_food():
 
     assert "calories" in result["reference_serving"]
     assert "protein" in result["reference_serving"]
-    assert "carbs" in result["reference_serving"]
+    assert "carbohydrate" in result["reference_serving"]

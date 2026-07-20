@@ -1,6 +1,5 @@
 from unittest.mock import patch
-
-from app.food_detector import detect_food
+from vision_service.recognition.food_recognition import detect_food
 
 
 class _FakeMessage:
@@ -20,7 +19,7 @@ class _FakeResponse:
 
 def test_detect_food_uses_supported_model_slug():
     with patch(
-        "app.food_detector.client.chat.completions.create",
+        "vision_service.recognition.food_recognition.client.chat.completions.create",
         return_value=_FakeResponse("pizza"),
     ) as mock_create:
         result = detect_food(b"fake-image-bytes")
